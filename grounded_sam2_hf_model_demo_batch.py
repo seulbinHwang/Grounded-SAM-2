@@ -80,13 +80,16 @@ grounding_model = AutoModelForZeroShotObjectDetection.from_pretrained(
 # setup the input image and text prompt for SAM 2 and Grounding DINO
 # VERY important: text queries need to be lowercased + end with a dot
 #text = "car. tire."
-text = "field. field whtie markings."
+text = "field. field white markings."
 img_parents = ["left_frames", "right_frames"]
 pngs_number = None
 left_batch_masks:List[np.ndarray] = []
 right_batch_masks = []
 for parent_idx, img_parent in enumerate(img_parents):
     all_pngs = os.listdir(img_parent)
+    img_parent_result = f"{parent_idx}_result"
+    if not os.path.exists(img_parent_result):
+        os.makedirs(img_parent_result)
     if pngs_number is None:
         pngs_number = len(all_pngs)
     else:
@@ -168,12 +171,12 @@ for parent_idx, img_parent in enumerate(img_parents):
         annotated_frame = label_annotator.annotate(scene=annotated_frame,
                                                    detections=detections,
                                                    labels=labels)
-        cv2.imwrite("groundingdino_annotated_image.jpg", annotated_frame)
+        cv2.imwrite(f"{img_parent_result}/groundingdino_annotated_image_{img_idx}.jpg", annotated_frame)
 
         mask_annotator = sv.MaskAnnotator(color=ColorPalette.from_hex(CUSTOM_COLOR_MAP))
         annotated_frame = mask_annotator.annotate(scene=annotated_frame,
                                                   detections=detections)
-        cv2.imwrite("grounded_sam2_annotated_image_with_mask.jpg", annotated_frame)
+        cv2.imwrite(f"{img_parent_result}/grounded_sam2_annotated_image_with_mask_{img_idx}.jpg", annotated_frame)
 
 save_ndarray_list(left_batch_masks, "left_batch_masks.pkl")
 save_ndarray_list(right_batch_masks, "right_batch_masks.pkl")
