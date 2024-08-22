@@ -34,8 +34,8 @@ grounding_model = AutoModelForZeroShotObjectDetection.from_pretrained(
 # setup the input image and text prompt for SAM 2 and Grounding DINO
 # VERY important: text queries need to be lowercased + end with a dot
 #text = "car. tire."
-text = "soccer field. field markings."
-img_path = 'left_frames/0.jpg'
+text = "field. white field markings."
+img_path = 'left_frames/0.png'
 
 image = Image.open(img_path)
 
@@ -66,7 +66,7 @@ Results is a list of dict with the following structure:
 """
 
 # get the box prompt for SAM 2
-input_boxes = results[0]["boxes"].cpu().numpy()
+input_boxes = results[0]["boxes"].cpu().numpy() # (ㅜ, 4)
 
 masks, scores, logits = sam2_predictor.predict(
     point_coords=None,
@@ -110,6 +110,7 @@ label_annotator = sv.LabelAnnotator(
 annotated_frame = label_annotator.annotate(scene=annotated_frame,
                                            detections=detections,
                                            labels=labels)
+
 cv2.imwrite("groundingdino_annotated_image.jpg", annotated_frame)
 
 mask_annotator = sv.MaskAnnotator(color=ColorPalette.from_hex(CUSTOM_COLOR_MAP))
