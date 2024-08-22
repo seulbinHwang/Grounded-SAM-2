@@ -54,7 +54,6 @@ def load_ndarray_list(file_path: str) -> List[np.ndarray]:
         raise IOError(f"파일을 불러오는 중 오류가 발생했습니다: {e}")
 
 
-
 # environment settings
 # use bfloat16
 torch.autocast(device_type="cuda", dtype=torch.bfloat16).__enter__()
@@ -80,10 +79,10 @@ grounding_model = AutoModelForZeroShotObjectDetection.from_pretrained(
 # setup the input image and text prompt for SAM 2 and Grounding DINO
 # VERY important: text queries need to be lowercased + end with a dot
 #text = "car. tire."
-text = "field. field white markings."
+text = "field."
 img_parents = ["left_frames", "right_frames"]
 pngs_number = None
-left_batch_masks:List[np.ndarray] = []
+left_batch_masks: List[np.ndarray] = []
 right_batch_masks = []
 for parent_idx, img_parent in enumerate(img_parents):
     all_pngs = os.listdir(img_parent)
@@ -93,13 +92,16 @@ for parent_idx, img_parent in enumerate(img_parents):
     if pngs_number is None:
         pngs_number = len(all_pngs)
     else:
-        assert pngs_number == len(all_pngs), "The number of png files in the directories should be the same."
+        assert pngs_number == len(
+            all_pngs
+        ), "The number of png files in the directories should be the same."
     for img_idx, png_img in enumerate(all_pngs):
         img_path = f"{img_parent}/{png_img}"
         image = Image.open(img_path)
         sam2_predictor.set_image(np.array(image.convert("RGB")))
 
-        inputs = processor(images=image, text=text, return_tensors="pt").to(device)
+        inputs = processor(images=image, text=text,
+                           return_tensors="pt").to(device)
         with torch.no_grad():
             outputs = grounding_model(**inputs)
 
@@ -162,7 +164,8 @@ for parent_idx, img_parent in enumerate(img_parents):
         Note that if you want to use default color map,
         you can set color=ColorPalette.DEFAULT
         """
-        box_annotator = sv.BoxAnnotator(color=ColorPalette.from_hex(CUSTOM_COLOR_MAP))
+        box_annotator = sv.BoxAnnotator(
+            color=ColorPalette.from_hex(CUSTOM_COLOR_MAP))
         annotated_frame = box_annotator.annotate(scene=img.copy(),
                                                  detections=detections)
 
@@ -171,12 +174,17 @@ for parent_idx, img_parent in enumerate(img_parents):
         annotated_frame = label_annotator.annotate(scene=annotated_frame,
                                                    detections=detections,
                                                    labels=labels)
-        cv2.imwrite(f"{img_parent_result}/groundingdino_annotated_image_{img_idx}.jpg", annotated_frame)
+        cv2.imwrite(
+            f"{img_parent_result}/groundingdino_annotated_image_{img_idx}.jpg",
+            annotated_frame)
 
-        mask_annotator = sv.MaskAnnotator(color=ColorPalette.from_hex(CUSTOM_COLOR_MAP))
+        mask_annotator = sv.MaskAnnotator(
+            color=ColorPalette.from_hex(CUSTOM_COLOR_MAP))
         annotated_frame = mask_annotator.annotate(scene=annotated_frame,
                                                   detections=detections)
-        cv2.imwrite(f"{img_parent_result}/grounded_sam2_annotated_image_with_mask_{img_idx}.jpg", annotated_frame)
+        cv2.imwrite(
+            f"{img_parent_result}/grounded_sam2_annotated_image_with_mask_{img_idx}.jpg",
+            annotated_frame)
 
 save_ndarray_list(left_batch_masks, "left_batch_masks.pkl")
 save_ndarray_list(right_batch_masks, "right_batch_masks.pkl")
