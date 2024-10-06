@@ -16,6 +16,7 @@ import copy
 import cv2
 import os
 import shutil
+import time
 
 
 def save_video_frames(video_path: str, frame_dir: str) -> None:
@@ -106,15 +107,13 @@ grounding_model = AutoModelForZeroShotObjectDetection.from_pretrained(model_id).
 # VERY important: text queries need to be lowercased + end with a dot
 text = "ball . person wearing red vest . person wearing yello vest . "
 # `video_dir` a directory of JPEG frames with filenames like `<frame_index>.jpg`
-# TODO:
 video_path = "./video/input.mp4"
-# video_dir =  "./video"
+video_dir = "video_frames"
 
 # 'output_dir' is the directory to save the annotated frames
 output_dir = "outputs"
 # 'output_video_path' is the path to save the final video
 output_video_path = "./outputs/output.mp4"
-video_dir = "video_frames"
 # create the output directory
 mask_data_dir = os.path.join(output_dir, "mask_data")
 json_data_dir = os.path.join(output_dir, "json_data")
@@ -141,6 +140,7 @@ frame_object_count = {}
 Step 2: Prompt Grounding DINO and SAM image predictor to get the box and mask for all frames
 """
 print("Total frames:", len(frame_names))
+start_time = time.time()
 for start_frame_idx in range(0, len(frame_names), step):
 # prompt grounding dino to get the box coordinates on specific frame
     print("start_frame_idx", start_frame_idx)
@@ -296,6 +296,8 @@ for frame_idx, current_object_count in frame_object_count.items():
 # remove video_dir.
 shutil.rmtree(video_dir)
 
+end_time = time.time()
+print("Total time:", end_time - start_time, "total frames:", len(frame_names))
 
 
 """

@@ -11,6 +11,11 @@ from transformers import AutoProcessor, AutoModelForCausalLM
 from utils.supervision_utils import CUSTOM_COLOR_MAP
 
 """
+python grounded_sam2_florence2_image_demo.py \
+    --pipeline open_vocabulary_detection_segmentation \
+    --image_path ./notebooks/images/cars.jpg \
+    --text_input "car <and> building"
+
 Define Some Hyperparam
 """
 

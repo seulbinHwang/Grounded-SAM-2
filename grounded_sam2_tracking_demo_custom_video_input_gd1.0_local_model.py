@@ -14,15 +14,19 @@ from utils.track_utils import sample_points_from_masks
 from utils.video_utils import create_video_from_images
 
 """
+
+python grounded_sam2_tracking_demo_custom_video_input_gd1.0_local_model.py
+
+
 Hyperparam for Ground and Tracking
 """
 GROUNDING_DINO_CONFIG = "grounding_dino/groundingdino/config/GroundingDINO_SwinT_OGC.py"
 GROUNDING_DINO_CHECKPOINT = "gdino_checkpoints/groundingdino_swint_ogc.pth"
 BOX_THRESHOLD = 0.35
 TEXT_THRESHOLD = 0.25
-VIDEO_PATH = "./assets/hippopotamus.mp4"
-TEXT_PROMPT = "hippopotamus."
-OUTPUT_VIDEO_PATH = "./hippopotamus_tracking_demo.mp4"
+VIDEO_PATH ="./video/input.mp4"
+TEXT_PROMPT = "ball . person wearing red vest . person wearing yello vest . "
+OUTPUT_VIDEO_PATH = "./outputs/output.mp4"
 SOURCE_VIDEO_FRAME_DIR = "./custom_video_frames"
 SAVE_TRACKING_RESULTS_DIR = "./tracking_results"
 PROMPT_TYPE_FOR_VIDEO = "box" # choose from ["point", "box", "mask"]

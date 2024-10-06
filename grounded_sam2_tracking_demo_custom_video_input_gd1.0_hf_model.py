@@ -14,12 +14,15 @@ from utils.track_utils import sample_points_from_masks
 from utils.video_utils import create_video_from_images
 
 """
+python grounded_sam2_tracking_demo_custom_video_input_gd1.0_hf_model.py
+
+
 Hyperparam for Ground and Tracking
 """
 MODEL_ID = "IDEA-Research/grounding-dino-tiny"
-VIDEO_PATH = "./assets/hippopotamus.mp4"
-TEXT_PROMPT = "hippopotamus."
-OUTPUT_VIDEO_PATH = "./hippopotamus_tracking_demo.mp4"
+VIDEO_PATH = "./video/input.mp4"
+TEXT_PROMPT = "ball . person wearing red vest . person wearing yello vest . "
+OUTPUT_VIDEO_PATH = "./outputs/output.mp4"
 SOURCE_VIDEO_FRAME_DIR = "./custom_video_frames"
 SAVE_TRACKING_RESULTS_DIR = "./tracking_results"
 PROMPT_TYPE_FOR_VIDEO = "box" # choose from ["point", "box", "mask"]
