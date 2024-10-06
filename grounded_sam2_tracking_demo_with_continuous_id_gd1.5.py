@@ -21,6 +21,25 @@ import json
 import copy
 
 """
+python grounded_sam2_tracking_demo_with_continuous_id.py
+
+VIDEO_PATH = "./assets/hippopotamus.mp4"  # 사용자 비디오 파일 경로
+TEXT_PROMPT = "hippopotamus."  # 추적할 객체에 대한 텍스트 프롬프트
+OUTPUT_VIDEO_PATH = "./hippopotamus_tracking_demo.mp4"  # 출력 비디오 경로
+API_TOKEN_FOR_GD1_5 = "Your API token"  # Grounding DINO 1.5용 API 토큰
+PROMPT_TYPE_FOR_VIDEO = "mask"  # SAM 2 마스크 예측을 비디오 예측자의 프롬프트로 사용
+
+text: 지상화 텍스트 프롬프트.
+video_dir: 비디오 파일이 포함된 디렉토리.
+output_dir: 처리된 출력 파일을 저장할 디렉토리.
+output_video_path: 출력 비디오 경로.
+step: 처리할 프레임 간격.
+box_threshold: Grounding DINO 모델의 박스 임계값.
+text_threshold: Grounding DINO 모델의 텍스트 임계값.
+"""
+
+
+"""
 Step 1: Environment settings and model initialization
 """
 # use bfloat16 for the entire notebook

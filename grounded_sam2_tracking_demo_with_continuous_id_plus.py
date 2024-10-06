@@ -13,7 +13,66 @@ from utils.common_utils import CommonUtils
 from utils.mask_dictionary_model import MaskDictionaryModel, ObjectInfo
 import json
 import copy
+import cv2
+import os
+import shutil
 
+
+def save_video_frames(video_path: str, frame_dir: str) -> None:
+    """
+    주어진 비디오 파일에서 모든 프레임을 추출하여 지정된 디렉토리에 저장하는 함수.
+
+    각 프레임은 6자리 숫자로 된 이름 (000000.jpg, 000001.jpg, ...) 으로 JPG 파일로 저장됩니다.
+    frame_dir 폴더가 없거나 내용물이 있으면, 폴더를 빈 상태로 초기화한 후 저장을 시작합니다.
+
+    Args:
+        video_path (str): 입력 비디오 파일 경로 (예: "./video/input.mp4").
+        frame_dir (str): 프레임을 저장할 디렉토리 경로 (예: "./frames").
+
+    Returns:
+        None: 프레임을 저장하며 반환값은 없습니다.
+    """
+    # 디렉토리가 존재할 경우 내부 파일을 모두 삭제하여 초기화
+    if os.path.exists(frame_dir):
+        shutil.rmtree(frame_dir)  # 기존 디렉토리 삭제
+    os.makedirs(frame_dir)  # 빈 디렉토리 생성
+
+    # 비디오 캡처 객체 생성
+    cap = cv2.VideoCapture(video_path)
+
+    frame_idx = 0  # 프레임 번호
+
+    while True:
+        ret, frame = cap.read()  # 프레임 읽기
+        if not ret:
+            break  # 더 이상 프레임이 없으면 종료
+
+        # 파일명 생성 (6자리 숫자 형식, 000000.jpg, 000001.jpg ...)
+        frame_name = f"{frame_idx:06}.jpg"
+        frame_path = os.path.join(frame_dir, frame_name)
+
+        # 프레임을 JPG로 저장
+        cv2.imwrite(frame_path, frame)
+
+        # 다음 프레임으로
+        frame_idx += 1
+
+    # 비디오 캡처 객체 해제
+    cap.release()
+
+
+"""
+python grounded_sam2_tracking_demo_with_continuous_id_plus.py
+
+text: 지상화 텍스트 프롬프트.
+video_dir: 비디오 파일이 포함된 디렉토리.
+output_dir: 처리된 출력 파일을 저장할 디렉토리.
+output_video_path: 출력 비디오 경로.
+step: 처리할 프레임 간격.
+box_threshold: Grounding DINO 모델의 박스 임계값.
+text_threshold: Grounding DINO 모델의 텍스트 임계값.
+
+"""
 # This demo shows the continuous object tracking plus reverse tracking with Grounding DINO and SAM 2
 """
 Step 1: Environment settings and model initialization
@@ -45,14 +104,17 @@ grounding_model = AutoModelForZeroShotObjectDetection.from_pretrained(model_id).
 
 # setup the input image and text prompt for SAM 2 and Grounding DINO
 # VERY important: text queries need to be lowercased + end with a dot
-text = "car."
+text = "ball . person wearing red vest . person wearing yello vest . "
+# `video_dir` a directory of JPEG frames with filenames like `<frame_index>.jpg`
+# TODO:
+video_path = "./video/input.mp4"
+# video_dir =  "./video"
 
-# `video_dir` a directory of JPEG frames with filenames like `<frame_index>.jpg`  
-video_dir = "notebooks/videos/car"
 # 'output_dir' is the directory to save the annotated frames
 output_dir = "outputs"
 # 'output_video_path' is the path to save the final video
 output_video_path = "./outputs/output.mp4"
+video_dir = "video_frames"
 # create the output directory
 mask_data_dir = os.path.join(output_dir, "mask_data")
 json_data_dir = os.path.join(output_dir, "json_data")
@@ -60,6 +122,7 @@ result_dir = os.path.join(output_dir, "result")
 CommonUtils.creat_dirs(mask_data_dir)
 CommonUtils.creat_dirs(json_data_dir)
 # scan all the JPEG frame names in this directory
+save_video_frames(video_path, video_dir)
 frame_names = [
     p for p in os.listdir(video_dir)
     if os.path.splitext(p)[-1] in [".jpg", ".jpeg", ".JPG", ".JPEG", ".png", ".PNG"]
@@ -230,7 +293,8 @@ for frame_idx, current_object_count in frame_object_count.items():
         np.save(mask_data_path, mask_array)
         json_data.to_json(json_data_path)
 
-        
+# remove video_dir.
+shutil.rmtree(video_dir)
 
 
 

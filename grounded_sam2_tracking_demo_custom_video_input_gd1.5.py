@@ -23,9 +23,9 @@ from utils.video_utils import create_video_from_images
 """
 Hyperparam for Ground and Tracking
 """
-VIDEO_PATH = "./assets/hippopotamus.mp4"
-TEXT_PROMPT = "hippopotamus."
-OUTPUT_VIDEO_PATH = "./hippopotamus_tracking_demo.mp4"
+VIDEO_PATH = "./video/input.mp4"
+TEXT_PROMPT =  "ball . person wearing red vest . person wearing yello vest . "
+OUTPUT_VIDEO_PATH = "./output.mp4"
 SOURCE_VIDEO_FRAME_DIR = "./custom_video_frames"
 SAVE_TRACKING_RESULTS_DIR = "./tracking_results"
 API_TOKEN_FOR_GD1_5 = "Your API token"
