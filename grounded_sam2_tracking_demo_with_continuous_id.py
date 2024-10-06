@@ -20,6 +20,9 @@ import time
 python grounded_sam2_tracking_demo_with_continuous_id.py
 
 """
+torch.cuda.empty_cache()
+torch.cuda.reset_max_memory_allocated()
+torch.cuda.reset_max_memory_cached()
 
 def save_video_frames(video_path: str, frame_dir: str) -> None:
     """
@@ -37,7 +40,7 @@ def save_video_frames(video_path: str, frame_dir: str) -> None:
     """
     # 디렉토리가 존재할 경우 내부 파일을 모두 삭제하여 초기화
     if os.path.exists(frame_dir):
-        shutil.rmtree(frame_dir)  # 기존 디렉토리 삭제
+        return
     os.makedirs(frame_dir)  # 빈 디렉토리 생성
 
     # 비디오 캡처 객체 생성
@@ -94,7 +97,7 @@ grounding_model = AutoModelForZeroShotObjectDetection.from_pretrained(model_id).
 
 # setup the input image and text prompt for SAM 2 and Grounding DINO
 # VERY important: text queries need to be lowercased + end with a dot
-text = "ball . person wearing red vest . person wearing yello vest . "
+text = "ball . person . "
 
 # `video_dir` a directory of JPEG frames with filenames like `<frame_index>.jpg`  
 video_path = "./video/input.mp4"
@@ -105,6 +108,8 @@ output_dir = "./outputs"
 # 'output_video_path' is the path to save the final video
 output_video_path = "./outputs/output.mp4"
 # create the output directory
+# rm
+shutil.rmtree(output_dir, ignore_errors=True)
 CommonUtils.creat_dirs(output_dir)
 mask_data_dir = os.path.join(output_dir, "mask_data")
 json_data_dir = os.path.join(output_dir, "json_data")
@@ -121,7 +126,7 @@ frame_names = [
 frame_names.sort(key=lambda p: int(os.path.splitext(p)[0]))
 
 # init video predictor state
-inference_state = video_predictor.init_state(video_path=video_dir, offload_video_to_cpu=True, async_loading_frames=True)
+inference_state = video_predictor.init_state(video_path=video_dir, offload_video_to_cpu=False, async_loading_frames=False)
 step = 20 # the step to sample frames for Grounding DINO predictor
 
 sam2_masks = MaskDictionaryModel()

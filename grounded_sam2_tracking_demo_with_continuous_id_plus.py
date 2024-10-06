@@ -18,6 +18,7 @@ import os
 import shutil
 import time
 
+torch.cuda.empty_cache()
 
 def save_video_frames(video_path: str, frame_dir: str) -> None:
     """
@@ -35,7 +36,7 @@ def save_video_frames(video_path: str, frame_dir: str) -> None:
     """
     # 디렉토리가 존재할 경우 내부 파일을 모두 삭제하여 초기화
     if os.path.exists(frame_dir):
-        shutil.rmtree(frame_dir)  # 기존 디렉토리 삭제
+        return
     os.makedirs(frame_dir)  # 빈 디렉토리 생성
 
     # 비디오 캡처 객체 생성
@@ -87,8 +88,8 @@ if torch.cuda.get_device_properties(0).major >= 8:
     torch.backends.cudnn.allow_tf32 = True
 
 # init sam image predictor and video predictor model
-sam2_checkpoint = "./checkpoints/sam2_hiera_large.pt"
-model_cfg = "sam2_hiera_l.yaml"
+sam2_checkpoint = "./checkpoints/sam2_hiera_tiny.pt" #sam2_hiera_large.pt"
+model_cfg = "sam2_hiera_t.yaml"
 device = "cuda" if torch.cuda.is_available() else "cpu"
 print("device", device)
 
@@ -129,7 +130,7 @@ frame_names = [
 frame_names.sort(key=lambda p: int(os.path.splitext(p)[0]))
 
 # init video predictor state
-inference_state = video_predictor.init_state(video_path=video_dir)
+inference_state = video_predictor.init_state(video_path=video_dir, offload_video_to_cpu=True)
 step = 10 # the step to sample frames for Grounding DINO predictor
 
 sam2_masks = MaskDictionaryModel()
